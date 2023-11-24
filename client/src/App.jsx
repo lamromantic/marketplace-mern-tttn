@@ -10,6 +10,7 @@ import CreateListing from './pages/CreateListing';
 import UpdateListing from './pages/UpdateListing';
 import Listing from './pages/Listing';
 import Search from './pages/Search';
+import Rent from "./pages/Rent"
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
             element={<UpdateListing />}
           />
         </Route>
+        <Route path="/rent/:id" element={<Rent />} />
       </Routes>
     </BrowserRouter>
   )

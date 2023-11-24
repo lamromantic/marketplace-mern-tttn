@@ -4,7 +4,8 @@ import { errorHandler } from '../utils/error.js';
 export const createListing = async (req, res, next) => {
   try {
     const listing = await Listing.create(req.body);
-    return res.status(201).json(listing);
+    const newListing = await listing.populate("userRef", "-password -createdAt -updatedAt")
+    return res.status(201).json(newListing);
   } catch (error) {
     next(error);
   }
@@ -52,7 +53,7 @@ export const updateListing = async (req, res, next) => {
 
 export const getListing = async (req, res, next) => {
  try {
-    const listing = await Listing.findById(req.params.id);
+    const listing = await Listing.findById(req.params.id).populate("userRef","-password -createdAt -updatedAt");
     if (!listing) {
       return next(errorHandler(404, 'Listing not found!'));
     }
