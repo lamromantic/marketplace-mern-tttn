@@ -99,7 +99,11 @@ export default function Listing() {
             </p>
             <div className="flex gap-4">
               <p className="bg-red-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
-                {listing.type === "rent" ? "For Rent" : "For Sale"}
+                {listing.status === "rent"
+                  ? "For Rent"
+                  : listing.status === "sale"
+                  ? "For Sale"
+                  : listing.status.toUpperCase()}
               </p>
               {listing.offer && (
                 <p className="bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
@@ -141,7 +145,16 @@ export default function Listing() {
               </div>
             </div>
             <div>
-              {listing.type === "rent" && <Link to={`/rent/${listing._id}`} className="bordered rounded text-white bg-black py-2 px-4">Rent this house</Link>}
+              {listing &&
+                listing.userRef._id != currentUser._id &&
+                (listing.status === "rent" || listing.status === "sale") && (
+                  <Link
+                    to={`/${listing.type}/${listing._id}`}
+                    className="bordered rounded text-white bg-black py-2 px-4"
+                  >
+                    {listing.type === "rent" ? "Rent" : "Buy"} this house
+                  </Link>
+                )}
             </div>
           </div>
         </div>

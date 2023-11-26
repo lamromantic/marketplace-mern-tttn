@@ -3,7 +3,7 @@ import { errorHandler } from '../utils/error.js';
 
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await Listing.create(req.body);
+    const listing = await Listing.create({...req.body, status: req.body.type});
     const newListing = await listing.populate("userRef", "-password -createdAt -updatedAt")
     return res.status(201).json(newListing);
   } catch (error) {
