@@ -133,7 +133,7 @@ const Order = () => {
       });
 
       if (res.status === 201) {
-        alert(`You ${listing.type} this house successfully!`);
+        alert(`${listing.type} this house successfully!`);
         navigate(`/listing/${listing._id}`);
       }
     } catch (error) {
