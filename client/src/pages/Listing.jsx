@@ -146,7 +146,7 @@ export default function Listing() {
             </div>
             <div>
               {listing &&
-                listing.userRef._id != currentUser._id &&
+                listing?.userRef?._id != currentUser?._id &&
                 (listing.status === "rent" || listing.status === "sale") && (
                   <Link
                     to={`/${listing.type}/${listing._id}`}

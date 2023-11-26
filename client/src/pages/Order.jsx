@@ -23,23 +23,30 @@ const Order = () => {
   const params = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const res = await fetch(`/api/listing/get/${params.id}`);
-        const data = await res.json();
-        if (data.success === false) {
-          return;
-        }
-        if (!(data.status === "sale" || data.status === "rent"))
-          return navigate(`/listing/${data._id}`);
-        setListing(data);
-      } catch (error) {
-        console.log(error);
+  const fetchListing = async () => {
+    try {
+      const res = await fetch(`/api/listing/get/${params.id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        return;
       }
-    };
+      if (!(data.status === "sale" || data.status === "rent"))
+        return navigate(`/listing/${data._id}`);
+      setListing(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
     fetchListing();
   }, [params.id]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setPaymentMethod(2);
+    }
+  }, []);
 
   const createOrderPaypal = async (data, actions) => {
     const orderID = await actions.order.create({
@@ -47,29 +54,31 @@ const Order = () => {
         {
           items: [
             {
-              name: `${listing.type.toUpperCase()} house name ${listing.name}`,
-              description: `${listing.type.toUpperCase()} house from ${
-                listing.userRef.username
+              name: `${listing?.type.toUpperCase()} house name ${
+                listing?.name
+              }`,
+              description: `${listing?.type.toUpperCase()} house from ${
+                listing?.userRef?.username
               }`,
               quantity: 1,
               unit_amount: {
                 currency_code: "USD",
-                value: listing.regularPrice,
+                value: listing?.regularPrice,
               },
             },
           ],
           amount: {
             currency_code: "USD",
-            value: listing.regularPrice,
+            value: listing?.regularPrice,
             breakdown: {
               item_total: {
                 currency_code: "USD",
-                value: listing.regularPrice,
+                value: listing?.regularPrice,
               },
             },
           },
-          description: `${listing.type.toUpperCase()} house from ${
-            listing.userRef.username
+          description: `${listing?.type.toUpperCase()} house from ${
+            listing?.userRef?.username
           }`,
         },
       ],
@@ -124,7 +133,7 @@ const Order = () => {
       });
 
       if (res.status === 201) {
-        console.log(`You ${listing.type} this house successfully!`);
+        alert(`You ${listing.type} this house successfully!`);
         navigate(`/listing/${listing._id}`);
       }
     } catch (error) {
@@ -132,8 +141,16 @@ const Order = () => {
     }
   };
 
+  useEffect(() => {
+    if (success) {
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    }
+  }, [success]);
+
   return (
-    <div className="flex flex-col max-w-6xl mx-auto p-3">
+    <div className="flex flex-col max-w-6xl mx-auto p-3 relative">
       <h2 className="text-2xl font-semibold mt-8">Reservation required</h2>
       <div className="flex flex-row-reverse gap-4">
         <img src={listing?.imageUrls[0]} className="flex-1 w-60 pt-10" />
@@ -178,10 +195,12 @@ const Order = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="max-w-[400px] w-full p-2 rounded"
             >
-              <option value="1">Payment upon meeting</option>
+              <option value="1" disabled={!currentUser}>
+                Payment upon meeting
+              </option>
               <option value="2">Paypal</option>
             </select>
-            {paymentMethod == 2 && (
+            {paymentMethod == 2 && listing && (
               <div className="max-w-[400px] w-full mt-6">
                 <PayPalButtons
                   createOrder={createOrderPaypal}
@@ -201,6 +220,11 @@ const Order = () => {
           </div>
         </form>
       </div>
+      {success && (
+        <div className="absolute top-[20px] left-1/2 w-fit z-[999999] text-base text-red font-semibold bg-white p-4 rounded shadow">
+          Payment success!
+        </div>
+      )}
     </div>
   );
 };
